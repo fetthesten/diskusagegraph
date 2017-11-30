@@ -25,6 +25,7 @@ class DiskUsageGui:
         root = tk.Tk()
         root.title('disk usage graph')
         root.geometry('1024x768')
+        # root.wm_attributes('-fullscreen','true')
 
         root.configure(background = 'white')
         
@@ -35,7 +36,7 @@ class DiskUsageGui:
         return root
 
     def test(self):
-        msgbox.showinfo('rock steady', 'my man')
+        msgbox.showinfo('klikkosaurus', 'heyo')
 
     def quit_window(self):
         self.window.destroy()
@@ -63,12 +64,19 @@ class DiskUsageGui:
             tk_args['activebackground'] = None if 'activebackground' not in s else current_style[s['activebackground']]
             tk_args['activeforeground'] = None if 'activeforeground' not in s else current_style[s['activeforeground']]
 
-            column = 0 if 'column' not in el else el['column']
-            row = 0 if 'row' not in el else el['row']
-            sticky = 'w' if 'sticky' not in el else el['sticky']
+            default_grid_args = {
+                'column': 0,
+                'row': 0,
+                'columnspan': 1,
+                'rowspan': 1,
+                'sticky': 'w'
+                }
+            grid_args = {}
+            for kw, default_value in default_grid_args.items():
+                grid_args[kw] = default_value if kw not in el else el[kw]
                    
             meth = getattr(tk, el['element'])
-            self.layouts[layout][n]['item'] = meth(root, **tk_args).grid(column=column, row=row, sticky=sticky)
+            self.layouts[layout][n]['item'] = meth(root, **tk_args).grid(**grid_args)
 
     def init_layouts(self):
         self.layouts['main'] = {
@@ -78,35 +86,36 @@ class DiskUsageGui:
                 'style': 'h1',
                 'column': 0,
                 'row': 0,
+                'columnspan': 3,
                 'sticky': 'W'
                 },
-            'button1': {
+            'button_load': {
                 'element': 'Button',
-                'text': 'donkey kong',
+                'text': 'load dir',
                 'style': 'button_regular',
                 'command': 'test',
                 'column': 0,
                 'row': 2,
                 'sticky': 'W'
                 },
-            'button2': {
+            'button_reset': {
                 'element': 'Button',
-                'text': 'rocksteady',
+                'text': 'reset graph',
                 'style': 'button_regular',
                 'command': self.test,
-                'column': 0,
-                'row': 3,
+                'column': 1,
+                'row': 2,
                 'sticky': 'W'
                 },
-            'button_close': {
-                'element': 'Button',
-                'text': 'x',
-                'style': 'button_quit',
-                'command': self.quit_window,
-                'column': 2,
-                'row': 0,
-                'sticky': 'E'
-                }
+            #'button_close': {
+            #    'element': 'Button',
+            #    'text': 'x',
+            #    'style': 'button_quit',
+            #    'command': self.quit_window,
+            #    'column': 2,
+            #    'row': 0,
+            #    'sticky': 'E'
+            #    }
             }
         
     def init_styles(self):
