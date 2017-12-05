@@ -1,3 +1,4 @@
+import pickle
 import tkinter as tk
 from tkinter import messagebox as msgbox
 from diskusagegraph import DiskUsageGraph
@@ -8,6 +9,8 @@ class DiskUsageGui:
         if graph:
             self.graph = self.load_graph(graph)
 
+        self.current_dir = 'c:\\'
+        
         self.layouts = {}
         self.styles = {}
 
@@ -16,6 +19,8 @@ class DiskUsageGui:
         
         self.window = self.init_window()
 
+        #self.layouts['main']['dir_entry']['item'].insert(0, self.current_dir)
+        
         self.window.mainloop()
 
     def load_graph(self, graph):
@@ -28,7 +33,7 @@ class DiskUsageGui:
         # root.wm_attributes('-fullscreen','true')
 
         root.configure(background = 'white')
-        
+        root.columnconfigure(2, weight = 1)
         self.load_layout(root)
 
         root.focus_set()
@@ -54,16 +59,21 @@ class DiskUsageGui:
             s.update(current_style[el['style']])
             tk_args = {}
             tk_args.update(current_style[el['style']])
-            tk_args['font'] = current_style[s['font']]
-            tk_args['background'] = current_style[s['background']]
-            tk_args['foreground'] = current_style[s['foreground']]
+            if 'font' in s:
+                tk_args['font'] = current_style[s['font']]
+            if 'background' in s:
+                tk_args['background'] = current_style[s['background']]
+            if 'foreground' in s:
+                tk_args['foreground'] = current_style[s['foreground']]
+            if 'bd' in s:
+                tk_args['bd'] = s['bd']
             tk_args['text'] = None if 'text' not in el else el['text']
             tk_args['command'] = None if 'command' not in el else el['command']
             tk_args['highlightbackground'] = None if 'highlightbackground' not in s else current_style[s['highlightbackground']]
             tk_args['highlightforeground'] = None if 'highlightforeground' not in s else current_style[s['highlightforeground']]
             tk_args['activebackground'] = None if 'activebackground' not in s else current_style[s['activebackground']]
             tk_args['activeforeground'] = None if 'activeforeground' not in s else current_style[s['activeforeground']]
-
+            print(tk_args)
             default_grid_args = {
                 'column': 0,
                 'row': 0,
@@ -89,12 +99,28 @@ class DiskUsageGui:
                 'columnspan': 3,
                 'sticky': 'W'
                 },
+            'dir_entry': {
+                'element': 'Entry',
+                'style': 'entry_dir',
+                'column': 0,
+                'row': 1,
+                'sticky': 'EWNS',
+                'columnspan': 3,
+                },
+            'filler': {
+                'element': 'Frame',
+                'style': 'menu_filler',
+                'column': 0,
+                'row': 2,
+                'sticky': 'EWNS',
+                'columnspan': 3
+                },
             'button_load': {
                 'element': 'Button',
                 'text': 'load dir',
                 'style': 'button_regular',
                 'command': 'test',
-                'column': 0,
+                'column': 1,
                 'row': 2,
                 'sticky': 'W'
                 },
@@ -103,75 +129,14 @@ class DiskUsageGui:
                 'text': 'reset graph',
                 'style': 'button_regular',
                 'command': self.test,
-                'column': 1,
+                'column': 2,
                 'row': 2,
                 'sticky': 'W'
                 },
-            #'button_close': {
-            #    'element': 'Button',
-            #    'text': 'x',
-            #    'style': 'button_quit',
-            #    'command': self.quit_window,
-            #    'column': 2,
-            #    'row': 0,
-            #    'sticky': 'E'
-            #    }
             }
         
     def init_styles(self):
-        self.styles['default'] = {
-            'font_heading': ('Segoe UI Light', 24),
-            'font_button_regular': ('Segoe UI', 16),
-            'font_button_thicc': ('Segoe UI Semibold', 16),
-            'background_main': '#ffffff',
-            'background_button': '#ff6e00',
-            'background_button_highlight': '#aa3b00',
-            'background_button_quit': '#ff3900',
-            'background_button_quit_highlight': '#aa0b00',
-            'foreground_button': '#ffffff',
-            'foreground_main': '#333333',
-            'h1': {
-                'font': 'font_heading',
-                'justify': 'left',
-                'anchor': 'w',
-                'background': 'background_main',
-                'foreground': 'foreground_main',
-                'height': 1,
-                'width': 0,
-                'padx': 2,
-                'pady': 4
-            },
-            'button_regular': {
-                'font': 'font_button_regular',
-                'justify': 'left',
-                'anchor': 'w',
-                'background': 'background_button',
-                'foreground': 'foreground_button',
-                'relief': 'flat',
-                'height': 1,
-                'width': 16,
-                'padx': 2,
-                'pady': 1,
-                'borderwidth': 0,
-                'activeforeground': 'foreground_button',
-                'activebackground': 'background_button_highlight'
-            },
-            'button_quit': {
-                'font': 'font_button_thicc',
-                'justify': 'center',
-                'anchor': 'center',
-                'background': 'background_button_quit',
-                'foreground': 'foreground_button',
-                'relief': 'flat',
-                'height': 0,
-                'width': 3,
-                'padx': 2,
-                'pady': 1,
-                'borderwidth': 0,
-                'activeforeground': 'foreground_button',
-                'activebackground': 'background_button_quit_highlight'
-            }
-        }
+        self.styles = pickle.load(open('styles.dat', 'rb'))
         
 if __name__ == '__main__':
     g = DiskUsageGui()
