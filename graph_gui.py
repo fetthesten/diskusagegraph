@@ -1,4 +1,5 @@
 import pickle
+import os
 import tkinter as tk
 from tkinter import messagebox as msgbox
 from diskusagegraph import DiskUsageGraph
@@ -6,8 +7,9 @@ from diskusagegraph import DiskUsageGraph
 class DiskUsageGui:
 
     def __init__(self, graph = None):
+        self.graphs = {}
         if graph:
-            self.graph = self.load_graph(graph)
+            self.graphs[graph] = self.load_graph(graph)
 
         self.current_dir = 'c:\\'
         
@@ -19,12 +21,15 @@ class DiskUsageGui:
         
         self.window = self.init_window()
 
-        #self.layouts['main']['dir_entry']['item'].insert(0, self.current_dir)
+        self.layouts['main']['dir_entry']['item'].insert(0, self.current_dir)
         
         self.window.mainloop()
 
+    def verify_dir(self, dir):
+        return os.path.isdir(dir)
+        
     def load_graph(self, graph):
-        return graph
+        return DiskUsageGraph(graph)
 
     def init_window(self):
         root = tk.Tk()
@@ -42,6 +47,11 @@ class DiskUsageGui:
 
     def test(self):
         msgbox.showinfo('klikkosaurus', 'heyo')
+
+    def button_load_graph_clicked(self):
+        input_dir = self.layouts['main']['dir_entry']['item'].get()
+        if self.verify_dir(input_dir):
+            self.graphs[input_dir] = self.load_graph(input_dir)
 
     def quit_window(self):
         self.window.destroy()
@@ -73,7 +83,7 @@ class DiskUsageGui:
             tk_args['highlightforeground'] = None if 'highlightforeground' not in s else current_style[s['highlightforeground']]
             tk_args['activebackground'] = None if 'activebackground' not in s else current_style[s['activebackground']]
             tk_args['activeforeground'] = None if 'activeforeground' not in s else current_style[s['activeforeground']]
-            print(tk_args)
+            print(n, tk_args)
             default_grid_args = {
                 'column': 0,
                 'row': 0,
@@ -86,13 +96,14 @@ class DiskUsageGui:
                 grid_args[kw] = default_value if kw not in el else el[kw]
                    
             meth = getattr(tk, el['element'])
-            self.layouts[layout][n]['item'] = meth(root, **tk_args).grid(**grid_args)
+            self.layouts[layout][n]['item'] = meth(root, **tk_args)
+            self.layouts[layout][n]['item'].grid(**grid_args)
 
     def init_layouts(self):
         self.layouts['main'] = {
             'heading': {
                 'element': 'Label',
-                'text': 'a disk usage graph fam',
+                'text': 'disk usage graph',
                 'style': 'h1',
                 'column': 0,
                 'row': 0,
